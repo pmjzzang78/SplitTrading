@@ -1,0 +1,11 @@
+{
+  "name": "split-trading",
+  "version": "1.0.0",
+  "description": "BitSplit 스타일 분할매매 계산기 (정적 웹앱)",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test 'tests/**/*.test.mjs'",
+    "serve": "python3 -m http.server"
+  }
+}

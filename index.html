@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="비트코인 분할매수·분할매도·물타기·수익 계산을 도와주는 정적 웹앱">
+  <title>SplitTrading — 분할매매 계산기</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23f0b90b'/%3E%3Ctext x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='%23111'%3ES%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="app-header">
+  <div class="header-inner">
+    <div class="brand">
+      <span class="brand-mark">S</span>
+      <div class="brand-text">
+        <h1>SplitTrading</h1>
+        <span class="brand-sub">분할매매 계산기</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="계산기 종류">
+  <button class="tab active" role="tab" aria-selected="true" data-tab="buy">분할매수</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="sell">분할매도</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="avgdown">물타기</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="profit">수익 계산</button>
+</nav>
+
+<main class="container">
+
+  <!-- 1. 분할매수 -->
+  <section class="panel active" id="panel-buy" role="tabpanel">
+    <form class="card form" id="form-buy" novalidate>
+      <h2 class="card-title">분할매수 계산기</h2>
+      <p class="card-desc">최고가에서 최저가까지 여러 구간으로 나눠 매수할 때의 주문 배분을 계산합니다.</p>
+      <div class="grid">
+        <label>총 투자금액 (원)
+          <input type="number" name="total" inputmode="decimal" step="any" placeholder="예: 1000000" required>
+        </label>
+        <label>분할 횟수 (2~30)
+          <input type="number" name="count" inputmode="numeric" step="1" min="2" max="30" placeholder="예: 5" required>
+        </label>
+        <label>최고 매수가
+          <input type="number" name="highPrice" inputmode="decimal" step="any" placeholder="예: 90000000" required>
+        </label>
+        <label>최저 매수가
+          <input type="number" name="lowPrice" inputmode="decimal" step="any" placeholder="예: 70000000" required>
+        </label>
+        <label>분배 방식
+          <select name="mode">
+            <option value="equal">균등 분배</option>
+            <option value="weighted">하방 가중 (낮을수록 크게)</option>
+          </select>
+        </label>
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn-primary">계산하기</button>
+      </div>
+      <p class="error" id="error-buy" role="alert"></p>
+    </form>
+    <div class="results" id="results-buy" hidden></div>
+  </section>
+
+  <!-- 2. 분할매도 -->
+  <section class="panel" id="panel-sell" role="tabpanel" hidden>
+    <form class="card form" id="form-sell" novalidate>
+      <h2 class="card-title">분할매도 계산기</h2>
+      <p class="card-desc">최저 목표가에서 최고 목표가까지 여러 구간으로 나눠 매도할 때의 주문 배분을 계산합니다.</p>
+      <div class="grid">
+        <label>보유 수량
+          <input type="number" name="holdingQty" inputmode="decimal" step="any" placeholder="예: 0.5" required>
+        </label>
+        <label>평균 매수단가 (선택)
+          <input type="number" name="avgBuyPrice" inputmode="decimal" step="any" placeholder="입력 시 수익률 표시">
+        </label>
+        <label>분할 횟수 (2~30)
+          <input type="number" name="count" inputmode="numeric" step="1" min="2" max="30" placeholder="예: 5" required>
+        </label>
+        <label>최저 목표가
+          <input type="number" name="lowTarget" inputmode="decimal" step="any" placeholder="예: 80000000" required>
+        </label>
+        <label>최고 목표가
+          <input type="number" name="highTarget" inputmode="decimal" step="any" placeholder="예: 100000000" required>
+        </label>
+        <label>분배 방식
+          <select name="mode">
+            <option value="equal">균등 분배</option>
+            <option value="weighted">상방 가중 (높을수록 많이)</option>
+          </select>
+        </label>
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn-primary">계산하기</button>
+      </div>
+      <p class="error" id="error-sell" role="alert"></p>
+    </form>
+    <div class="results" id="results-sell" hidden></div>
+  </section>
+
+  <!-- 3. 물타기 -->
+  <section class="panel" id="panel-avgdown" role="tabpanel" hidden>
+    <form class="card form" id="form-avgdown" novalidate>
+      <h2 class="card-title">물타기 계산기</h2>
+      <p class="card-desc">추가 매수 시 평균단가가 어떻게 바뀌는지, 본전까지 필요한 상승률을 계산합니다.</p>
+      <div class="grid">
+        <label>현재 평단
+          <input type="number" name="avgPrice" inputmode="decimal" step="any" placeholder="예: 90000000" required>
+        </label>
+        <label>보유 수량
+          <input type="number" name="holdingQty" inputmode="decimal" step="any" placeholder="예: 0.3" required>
+        </label>
+        <label>추가 매수가
+          <input type="number" name="addPrice" inputmode="decimal" step="any" placeholder="예: 70000000" required>
+        </label>
+        <label>추가 매수 금액 (원)
+          <input type="number" name="addAmount" inputmode="decimal" step="any" placeholder="예: 5000000" required>
+        </label>
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn-primary">계산하기</button>
+      </div>
+      <p class="error" id="error-avgdown" role="alert"></p>
+    </form>
+    <div class="results" id="results-avgdown" hidden></div>
+  </section>
+
+  <!-- 4. 수익 계산 -->
+  <section class="panel" id="panel-profit" role="tabpanel" hidden>
+    <form class="card form" id="form-profit" novalidate>
+      <h2 class="card-title">수익 계산기</h2>
+      <p class="card-desc">매수가·매도가·수량·수수료율로 실현 손익과 수익률을 계산합니다.</p>
+      <div class="grid">
+        <label>매수가
+          <input type="number" name="buyPrice" inputmode="decimal" step="any" placeholder="예: 80000000" required>
+        </label>
+        <label>매도가
+          <input type="number" name="sellPrice" inputmode="decimal" step="any" placeholder="예: 100000000" required>
+        </label>
+        <label>수량
+          <input type="number" name="qty" inputmode="decimal" step="any" placeholder="예: 0.5" required>
+        </label>
+        <label>수수료율 (%)
+          <input type="number" name="feeRate" inputmode="decimal" step="any" value="0.05" placeholder="기본 0.05">
+        </label>
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn-primary">계산하기</button>
+      </div>
+      <p class="error" id="error-profit" role="alert"></p>
+    </form>
+    <div class="results" id="results-profit" hidden></div>
+  </section>
+
+</main>
+
+<footer class="app-footer">
+  <p>SplitTrading · 투자 판단의 참고용 계산기이며 수익을 보장하지 않습니다.</p>
+</footer>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
